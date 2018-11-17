@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Евгений Кайгородов](https://up.htmlacademy.ru/javascript/16/user/802621).
-* Наставник: `Неизвестно`.
+* Наставник: [Артём Рудов](https://up.htmlacademy.ru/javascript/16/user/345377).
 
 ---
 
