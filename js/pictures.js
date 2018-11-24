@@ -1,6 +1,12 @@
 'use strict';
 
-function getRandom(min, max) { // Используем готовую функцию для генерации случайного числа в пределах [min max]
+/**
+  *Возвращает целое случайное число в диапазоне [min max]
+  @param {number} min - Нижний предел диапазона
+  @param {number} max - Верхний предел диапазона
+  @return {number} - Сгенерированное целое число
+*/
+function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -24,6 +30,11 @@ var description = [
   'Вот это тачка!'
 ];
 
+/**
+  *генерирует массив с одним или двумя комментариями
+  @param {array} commentsArray - исходный массив, включающий в себя все доступные комментарии
+  @return {array} commentsList - сгениророванный функцией массив, содеражщий 1 или 2 случайных комментария
+*/
 function generateComments(commentsArray) { // генерирует массив с комментариями
   var commentsList = [];
   var commentsAmount = getRandom(1, 2);
@@ -35,14 +46,28 @@ function generateComments(commentsArray) { // генерирует массив 
   return commentsList;
 }
 
-function generateDescription(descriptionArray) { // генерируем случайное описание для фото
-  return description[getRandom(0, descriptionArray.length - 1)];
+/**
+  *генерирует строку, содержащую описание фото
+  @param {array} descriptionArray - исходный массив, включающий в себя все доступные варианты описаний
+  @return {string} - случайно выбранная строка из переданного массива
+*/
+function generateDescription(descriptionArray) {
+  return descriptionArray[getRandom(0, descriptionArray.length - 1)];
 }
 
-function getLikesAmount() { // генерируем случайное количество лайков
+/**
+  *генерирует случайное количество лайков для фотографии в отрезке [15 200]
+  @return {number} - случайное число из указанного диапазона
+*/
+function getLikesAmount() {
   return getRandom(15, 200);
 }
 
+/**
+  *создает объект фотокарточки
+  @param {number} ordinal - параметр, определяющий адрес изображения
+  @return {object} - сгениророванный объект
+*/
 function getObject(ordinal) { // создаем объект
   var post = {
     url: 'photos/' + ordinal + '.jpg',
@@ -54,6 +79,11 @@ function getObject(ordinal) { // создаем объект
   return post;
 }
 
+/**
+  *генерирует массив объектов
+  @param {number} objectsAmount - параметр, определяющий количество создаваемых объектов
+  @return {array} objectsList - сгениророванный массив объектов
+*/
 function generateObjectsArray(objectsAmount) { // генерируем массив объектов
   var objectsList = [];
 
@@ -87,12 +117,26 @@ bigPicture.querySelector('.likes-count').textContent = photoList[0].likes;
 bigPicture.querySelector('.comments-count').textContent = photoList[0].comments.length;
 
 var photoComments = bigPicture.querySelectorAll('.social__comment'); // наполняем фото комментариямиы
-for (var i = 0; i < photoComments.length; i++) {
-  photoComments[i].querySelector('.social__picture').src = 'img/avatar-' + getRandom(1, 6) + '.svg';
-  photoComments[i].querySelector('.social__text').textContent = photoList[0].comments[i];
+var currentCommentsList = bigPicture.querySelector('.social__comments');
+var commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
+
+for (j = 0; i < photoComments.length; i++) {
+  currentCommentsList.removeChild(photoComments[i]);
 }
 
-bigPicture.querySelector('.social__caption').textContent = photoList[0].description;
+while (currentCommentsList.lastChild) { // удаляем существующие комментарии перед вставкой новых
+  currentCommentsList.removeChild(currentCommentsList.lastChild);
+}
 
-bigPicture.querySelector('.social__comment-count').classList.add('hidden');
-bigPicture.querySelector('.comments-loader').classList.add('hidden');
+for (var i = 0; i < photoList[0].comments.length; i++) {
+  var commentItem = commentTemplate.cloneNode(true);
+  commentItem.querySelector('.social__picture').src = 'img/avatar-' + getRandom(1, 6) + '.svg';
+  commentItem.querySelector('.social__text').textContent = photoList[0].comments[i];
+
+  currentCommentsList.appendChild(commentItem);
+}
+
+bigPicture.querySelector('.social__caption').textContent = photoList[0].description; // добавляем описание фото
+
+bigPicture.querySelector('.social__comment-count').classList.add('visually-hidden');
+bigPicture.querySelector('.comments-loader').classList.add('visually-hidden');
