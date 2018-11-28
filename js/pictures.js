@@ -138,7 +138,7 @@ var picturesContainer = document.querySelector('.pictures');
 insertPhotoMiniatures(picturesContainer);
 
 var bigPicture = document.querySelector('.big-picture');
-bigPicture.classList.remove('hidden');
+
 
 bigPicture.querySelector('.big-picture__img img').src = photoList[0].url;
 bigPicture.querySelector('.likes-count').textContent = photoList[0].likes;
