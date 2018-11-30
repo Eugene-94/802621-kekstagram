@@ -122,20 +122,102 @@ function insertPhotoMiniatures(destinationContainer) {
   @function
   @param {number} ordinal - индекс массива, из которого берется информация
 */
-
 function insertComments(ordinal) {
-  for (var i = 0; i < photoList[ordinal].comments.length; i++) {
-    while (currentCommentsList.firstChild) {
-      currentCommentsList.removeChild(currentCommentsList.firstChild);
-    }
+  currentCommentsList.innerHTML = '';
 
+  for (var i = 0; i < photoList[ordinal].comments.length; i++) {
     var commentItem = commentTemplate.cloneNode(true);
     commentItem.querySelector('.social__picture').src = 'img/avatar-' + getRandom(1, 6) + '.svg';
-    commentItem.querySelector('.social__text').textContent = photoList[ordinal - 1].comments[i];
+    commentItem.querySelector('.social__text').textContent = photoList[ordinal].comments[i];
 
     currentCommentsList.appendChild(commentItem);
   }
 }
+
+/**
+  *отвечает за смену фильтров для загруженного изображения
+  @function
+  @param {object} evt - объект event
+*/
+var changeFilter = function (evt) {
+  var target = evt.target;
+  if (evt.target.parentNode.classList.contains('effects__label')) {
+    var currentFilter = target.parentNode.getAttribute('for');
+    switch (currentFilter) {
+      case 'effect-none':
+        photoPreview.removeAttribute('class');
+        break;
+      case 'effect-chrome':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--chrome');
+        break;
+      case 'effect-sepia':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--sepia');
+        break;
+      case 'effect-marvin':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--marvin');
+        break;
+      case 'effect-fobos':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--fobos');
+        break;
+      case 'effect-heat':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--heat');
+        break;
+    }
+  }
+};
+
+/**
+  *отвечает за открытие полноэкранного изображения по щелчку мыши
+  @function
+  @param {object} evt - объект event
+*/
+var openImageClick = function (evt) {
+  var target = evt.target;
+
+  if (target.classList.contains('picture__img')) {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.id - 1].comments.length;
+
+    insertComments(target.id - 1);
+  }
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши
+  @function
+*/
+var closeImageClick = function () {
+  bigPicture.classList.add('hidden');
+};
+
+/**
+  *отвечает за открытие и закрытие полноэкранного изображения при навигации с клавиатуры
+  @function
+  @param {object} evt - объект event
+*/
+var imageHandlerKeydown = function (evt) {
+  var target = evt.target;
+
+  if (evt.code === 'Enter') {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.childNodes[1].getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.childNodes[1].id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.childNodes[1].id - 1].comments.length;
+
+    insertComments(target.childNodes[1].id - 1);
+  }
+
+  if (evt.code === 'Escape') {
+    bigPicture.classList.add('hidden');
+  }
+};
 
 var photoList = generateObjectsArray(OBJECTS_QUANTITY);
 
@@ -149,7 +231,6 @@ var bigPicture = document.querySelector('.big-picture');
 var currentCommentsList = bigPicture.querySelector('.social__comments');
 var commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
 
-
 bigPicture.querySelector('.social__caption').textContent = photoList[getRandom(0, photoList.length - 1)].description;
 bigPicture.querySelector('.social__comment-count').classList.add('visually-hidden');
 bigPicture.querySelector('.comments-loader').classList.add('visually-hidden');
@@ -161,7 +242,7 @@ photoLoadingBtn.addEventListener('change', function () {
   changePhoto.classList.remove('hidden');
 
   document.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === 27) {
+    if (evt.code === 'Escape') {
       changePhoto.classList.add('hidden');
     }
   });
@@ -175,61 +256,13 @@ changePhotoClose.addEventListener('click', function () {
 var photoPreview = document.querySelector('.img-upload__preview img');
 var effectsFieldset = document.querySelector('.img-upload__effects');
 
-effectsFieldset.addEventListener('click', function (evt) {
-  if (evt.target.classList.contains('effects__preview--none')) {
-    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
-  } else if (evt.target.classList.contains('effects__preview--chrome')) {
-    photoPreview.classList.remove('effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
-    photoPreview.classList.add('effects__preview--chrome');
-  } else if (evt.target.classList.contains('effects__preview--sepia')) {
-    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
-    photoPreview.classList.add('effects__preview--sepia');
-  } else if (evt.target.classList.contains('effects__preview--marvin')) {
-    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--phobos', 'effects__preview--heat');
-    photoPreview.classList.add('effects__preview--marvin');
-  } else if (evt.target.classList.contains('effects__preview--phobos')) {
-    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--heat');
-    photoPreview.classList.add('effects__preview--phobos');
-  } else if (evt.target.classList.contains('effects__preview--heat')) {
-    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos');
-    photoPreview.classList.add('effects__preview--heat');
-  }
-});
+effectsFieldset.addEventListener('click', changeFilter);
 
 var imagesContainer = document.querySelector('.pictures');
-imagesContainer.addEventListener('click', function (evt) {
-  var target = evt.target;
-
-  if (target.classList.contains('picture__img')) {
-    bigPicture.classList.remove('hidden');
-    bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
-    bigPicture.querySelector('.likes-count').textContent = photoList[target.id - 1].likes;
-    bigPicture.querySelector('.comments-count').textContent = photoList[target.id - 1].comments.length;
-  }
-
-  insertComments(target.id - 1);
-});
+imagesContainer.addEventListener('click', openImageClick);
 
 var bigPictureCancel = document.querySelector('.big-picture__cancel');
-bigPictureCancel.addEventListener('click', function () {
-  bigPicture.classList.add('hidden');
-});
 
-imagesContainer.addEventListener('keydown', function (evt) {
-  var target = evt.target;
+bigPictureCancel.addEventListener('click', closeImageClick);
 
-  if (evt.keyCode === 13) {
-    bigPicture.classList.remove('hidden');
-    bigPicture.querySelector('.big-picture__img img').src = target.childNodes[1].getAttribute('src');
-    bigPicture.querySelector('.likes-count').textContent = photoList[target.childNodes[1].id - 1].likes;
-    bigPicture.querySelector('.comments-count').textContent = photoList[target.childNodes[1].id - 1].comments.length;
-  }
-
-  insertComments(target.childNodes[1].id - 1);
-});
-
-imagesContainer.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === 27) {
-    bigPicture.classList.add('hidden');
-  }
-});
+imagesContainer.addEventListener('keydown', imageHandlerKeydown);
