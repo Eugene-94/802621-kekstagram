@@ -168,7 +168,6 @@ changePhotoClose.addEventListener('click', function () {
 });
 
 var photoPreview = document.querySelector('.img-upload__preview img');
-var effects = document.querySelectorAll('.effects__preview');
 var effectsFieldset = document.querySelector('.img-upload__effects');
 
 effectsFieldset.addEventListener('click', function (evt) {
@@ -194,19 +193,33 @@ effectsFieldset.addEventListener('click', function (evt) {
 
 var imagesContainer = document.querySelector('.pictures:not(.img-upload)');
 imagesContainer.addEventListener('click', function (evt) {
-  if (evt.target.classList.contains('img-upload__input')) {
-    return;
+  var target = evt.target;
+
+  if (target.classList.contains('picture__img')) {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = evt.target.getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10) - 1].likes; // 7 - позиция в адресе, с которой начинается нумерация фото
+    bigPicture.querySelector('.comments-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10)].comments.length; // отнимаем 1, т.к. нумерация фото с единицы, а массив объектов начинается с 0
   }
-
-  console.log(evt.target.classList);
-
-  bigPicture.classList.remove('hidden');
-  bigPicture.querySelector('.big-picture__img img').src = evt.target.getAttribute('src');
-  bigPicture.querySelector('.likes-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10) - 1].likes; // 7 - позиция в адресе, с которой начинается нумерация фото
-  bigPicture.querySelector('.comments-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10)].comments.length; // отнимаем 1, т.к. нумерация фото с единицы, а массив объектов начинается с 0
 });
 
 var bigPictureCancel = document.querySelector('.big-picture__cancel');
 bigPictureCancel.addEventListener('click', function () {
   bigPicture.classList.add('hidden');
+});
+
+var pictures = document.querySelectorAll('.picture');
+imagesContainer.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === 13) {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = evt.target.childNodes[1].getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[parseInt(evt.target.childNodes[1].getAttribute('src').substr(7), 10) - 1].likes; // 7 - позиция в адресе, с которой начинается нумерация фото
+    bigPicture.querySelector('.comments-count').textContent = photoList[parseInt(evt.target.childNodes[1].getAttribute('src').substr(7), 10)].comments.length; // отнимаем 1, т.к. нумерация фото с единицы, а массив объектов начинается с 0
+  }
+});
+
+imagesContainer.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === 27) {
+    bigPicture.classList.add('hidden');
+  }
 });
