@@ -138,18 +138,75 @@ var picturesContainer = document.querySelector('.pictures');
 insertPhotoMiniatures(picturesContainer);
 
 var bigPicture = document.querySelector('.big-picture');
-bigPicture.classList.remove('hidden');
-
-bigPicture.querySelector('.big-picture__img img').src = photoList[0].url;
-bigPicture.querySelector('.likes-count').textContent = photoList[0].likes;
-bigPicture.querySelector('.comments-count').textContent = photoList[0].comments.length;
 
 var currentCommentsList = bigPicture.querySelector('.social__comments');
 var commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
 
 insertComments(currentCommentsList);
 
-bigPicture.querySelector('.social__caption').textContent = photoList[0].description;
+bigPicture.querySelector('.social__caption').textContent = photoList[getRandom(0, photoList.length - 1)].description;
 
 bigPicture.querySelector('.social__comment-count').classList.add('visually-hidden');
 bigPicture.querySelector('.comments-loader').classList.add('visually-hidden');
+
+var photoLoadingBtn = document.querySelector('#upload-file');
+var changePhoto = document.querySelector('.img-upload__overlay');
+
+photoLoadingBtn.addEventListener('change', function () {
+  changePhoto.classList.remove('hidden');
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === 27) {
+      changePhoto.classList.add('hidden');
+    }
+  });
+});
+
+var changePhotoClose = document.querySelector('.img-upload__cancel');
+changePhotoClose.addEventListener('click', function () {
+  changePhoto.classList.add('hidden');
+});
+
+var photoPreview = document.querySelector('.img-upload__preview img');
+var effects = document.querySelectorAll('.effects__preview');
+var effectsFieldset = document.querySelector('.img-upload__effects');
+
+effectsFieldset.addEventListener('click', function (evt) {
+  if (evt.target.classList.contains('effects__preview--none')) {
+    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
+  } else if (evt.target.classList.contains('effects__preview--chrome')) {
+    photoPreview.classList.remove('effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
+    photoPreview.classList.add('effects__preview--chrome');
+  } else if (evt.target.classList.contains('effects__preview--sepia')) {
+    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--marvin', 'effects__preview--phobos', 'effects__preview--heat');
+    photoPreview.classList.add('effects__preview--sepia');
+  } else if (evt.target.classList.contains('effects__preview--marvin')) {
+    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--phobos', 'effects__preview--heat');
+    photoPreview.classList.add('effects__preview--marvin');
+  } else if (evt.target.classList.contains('effects__preview--phobos')) {
+    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--heat');
+    photoPreview.classList.add('effects__preview--phobos');
+  } else if (evt.target.classList.contains('effects__preview--heat')) {
+    photoPreview.classList.remove('effects__preview--chrome', 'effects__preview--sepia', 'effects__preview--marvin', 'effects__preview--phobos');
+    photoPreview.classList.add('effects__preview--heat');
+  }
+});
+
+var imagesContainer = document.querySelector('.pictures:not(.img-upload)');
+imagesContainer.addEventListener('click', function (evt) {
+  if (evt.target.classList.contains('img-upload__input')) {
+    return;
+  }
+
+  console.log(evt.target.classList);
+
+  bigPicture.classList.remove('hidden');
+  bigPicture.querySelector('.big-picture__img img').src = evt.target.getAttribute('src');
+  bigPicture.querySelector('.likes-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10) - 1].likes; // 7 - позиция в адресе, с которой начинается нумерация фото
+  bigPicture.querySelector('.comments-count').textContent = photoList[parseInt(evt.target.getAttribute('src').substr(7), 10)].comments.length; // отнимаем 1, т.к. нумерация фото с единицы, а массив объектов начинается с 0
+});
+
+var bigPictureCancel = document.querySelector('.big-picture__cancel');
+bigPictureCancel.addEventListener('click', function () {
+  bigPicture.classList.add('hidden');
+});
