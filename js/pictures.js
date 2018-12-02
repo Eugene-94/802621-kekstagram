@@ -1,6 +1,9 @@
 'use strict';
 
 var OBJECTS_QUANTITY = 25;
+var INITIAL_FILTER_VALUE = 100;
+var uploadSection = document.querySelector('.img-upload');
+var bigPicture = document.querySelector('.big-picture');
 
 var comments = [
   'Всё отлично!',
@@ -159,15 +162,17 @@ var changeFilter = function (evt) {
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--marvin');
         break;
-      case 'effect-fobos':
+      case 'effect-phobos':
         photoPreview.removeAttribute('class');
-        photoPreview.classList.add('effects__preview--fobos');
+        photoPreview.classList.add('effects__preview--phobos');
         break;
       case 'effect-heat':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--heat');
         break;
     }
+
+    uploadSection.querySelector('.effect-level__value').setAttribute('value', INITIAL_FILTER_VALUE);
   }
 };
 
@@ -192,9 +197,21 @@ var openImageClick = function (evt) {
 /**
   *отвечает за закрытие полноэкранного изображения по щелчку мыши
   @function
+  @param {object} evt - объект события
 */
 var closeImageClick = function () {
   bigPicture.classList.add('hidden');
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши на оверлей
+  @function
+  @param {object} evt - объект события
+*/
+var closeImageOverlayClick = function (evt) {
+  if (evt.target.classList.contains('overlay')) {
+    bigPicture.classList.add('hidden');
+  }
 };
 
 /**
@@ -219,14 +236,45 @@ var imageHandlerKeydown = function (evt) {
   }
 };
 
+/**
+  *отвечает за открытие окна наложения фильтра
+  @function
+*/
+var imageEditorHandler = function () {
+  changePhoto.classList.remove('hidden');
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.code === 'Escape') {
+      changePhoto.classList.add('hidden');
+    }
+  });
+};
+
+/**
+  *отвечает за закрытие окна наложения фильтра по клику на кнопку закрытия
+  @function
+*/
+var closeImageEditor = function () {
+  changePhoto.classList.add('hidden');
+};
+
+/**
+  *отвечает за закрытие окна наложения фильтра по клику на оверлей
+  @function
+  @param {object} evt - объект event
+*/
+var closeImageEditorOverlay = function (evt) {
+  if (evt.target.className === 'img-upload__overlay' || evt.target.className === 'img-upload__cancel') {
+    changePhoto.classList.add('hidden');
+  }
+};
+
 var photoList = generateObjectsArray(OBJECTS_QUANTITY);
 
 var photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
 var picturesContainer = document.querySelector('.pictures');
 
 insertPhotoMiniatures(picturesContainer);
-
-var bigPicture = document.querySelector('.big-picture');
 
 var currentCommentsList = bigPicture.querySelector('.social__comments');
 var commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
@@ -238,25 +286,17 @@ bigPicture.querySelector('.comments-loader').classList.add('visually-hidden');
 var photoLoadingBtn = document.querySelector('#upload-file');
 var changePhoto = document.querySelector('.img-upload__overlay');
 
-photoLoadingBtn.addEventListener('change', function () {
-  changePhoto.classList.remove('hidden');
+photoLoadingBtn.addEventListener('change', imageEditorHandler);
 
-  document.addEventListener('keydown', function (evt) {
-    if (evt.code === 'Escape') {
-      changePhoto.classList.add('hidden');
-    }
-  });
-});
-
-var changePhotoClose = document.querySelector('.img-upload__cancel');
-changePhotoClose.addEventListener('click', function () {
-  changePhoto.classList.add('hidden');
-});
+var changePhotoClose = document.querySelector('.img-upload__cancel.cancel');
 
 var photoPreview = document.querySelector('.img-upload__preview img');
 var effectsFieldset = document.querySelector('.img-upload__effects');
 
 effectsFieldset.addEventListener('click', changeFilter);
+
+changePhotoClose.addEventListener('click', closeImageEditor);
+changePhoto.addEventListener('click', closeImageEditorOverlay);
 
 var imagesContainer = document.querySelector('.pictures');
 imagesContainer.addEventListener('click', openImageClick);
@@ -264,5 +304,6 @@ imagesContainer.addEventListener('click', openImageClick);
 var bigPictureCancel = document.querySelector('.big-picture__cancel');
 
 bigPictureCancel.addEventListener('click', closeImageClick);
+bigPicture.addEventListener('click', closeImageOverlayClick);
 
 imagesContainer.addEventListener('keydown', imageHandlerKeydown);
