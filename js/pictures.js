@@ -1,6 +1,9 @@
 'use strict';
 
 var OBJECTS_QUANTITY = 25;
+var INITIAL_FILTER_VALUE = 100;
+var uploadSection = document.querySelector('.img-upload');
+var bigPicture = document.querySelector('.big-picture');
 
 var comments = [
   'Всё отлично!',
@@ -78,7 +81,8 @@ function getObject(ordinal) {
     url: 'photos/' + ordinal + '.jpg',
     likes: getLikesAmount(),
     comments: generateComments(comments),
-    description: generateDescription(description)
+    description: generateDescription(description),
+    id: ordinal
   };
 }
 
@@ -108,6 +112,7 @@ function insertPhotoMiniatures(destinationContainer) {
   for (var j = 0; j < photoList.length; j++) {
     var photoItem = photoTemplate.cloneNode(true);
     photoItem.querySelector('.picture__img').src = photoList[j].url;
+    photoItem.querySelector('.picture__img').id = photoList[j].id;
     photoItem.querySelector('.picture__comments').textContent = photoList[j].comments.length;
     photoItem.querySelector('.picture__likes').textContent = photoList[j].likes;
 
@@ -118,17 +123,151 @@ function insertPhotoMiniatures(destinationContainer) {
 /**
   *генерирует набор комментариев для полноразмерного фото
   @function
-  @param {object} destinationContainer - адрес размещения комментариев
+  @param {number} ordinal - индекс массива, из которого берется информация
 */
-function insertComments(destinationContainer) {
-  for (var i = 0; i < photoList[0].comments.length; i++) {
+function insertComments(ordinal) {
+  currentCommentsList.innerHTML = '';
+
+  for (var i = 0; i < photoList[ordinal].comments.length; i++) {
     var commentItem = commentTemplate.cloneNode(true);
     commentItem.querySelector('.social__picture').src = 'img/avatar-' + getRandom(1, 6) + '.svg';
-    commentItem.querySelector('.social__text').textContent = photoList[0].comments[i];
+    commentItem.querySelector('.social__text').textContent = photoList[ordinal].comments[i];
 
-    destinationContainer.appendChild(commentItem);
+    currentCommentsList.appendChild(commentItem);
   }
 }
+
+/**
+  *отвечает за смену фильтров для загруженного изображения
+  @function
+  @param {object} evt - объект event
+*/
+var changeFilter = function (evt) {
+  var target = evt.target;
+  if (evt.target.parentNode.classList.contains('effects__label')) {
+    var currentFilter = target.parentNode.getAttribute('for');
+    switch (currentFilter) {
+      case 'effect-none':
+        photoPreview.removeAttribute('class');
+        break;
+      case 'effect-chrome':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--chrome');
+        break;
+      case 'effect-sepia':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--sepia');
+        break;
+      case 'effect-marvin':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--marvin');
+        break;
+      case 'effect-phobos':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--phobos');
+        break;
+      case 'effect-heat':
+        photoPreview.removeAttribute('class');
+        photoPreview.classList.add('effects__preview--heat');
+        break;
+    }
+
+    uploadSection.querySelector('.effect-level__value').setAttribute('value', INITIAL_FILTER_VALUE);
+  }
+};
+
+/**
+  *отвечает за открытие полноэкранного изображения по щелчку мыши
+  @function
+  @param {object} evt - объект event
+*/
+var openImageClick = function (evt) {
+  var target = evt.target;
+
+  if (target.classList.contains('picture__img')) {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.id - 1].comments.length;
+
+    insertComments(target.id - 1);
+  }
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши
+  @function
+  @param {object} evt - объект события
+*/
+var closeImageClick = function () {
+  bigPicture.classList.add('hidden');
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши на оверлей
+  @function
+  @param {object} evt - объект события
+*/
+var closeImageOverlayClick = function (evt) {
+  if (evt.target.classList.contains('overlay')) {
+    bigPicture.classList.add('hidden');
+  }
+};
+
+/**
+  *отвечает за открытие и закрытие полноэкранного изображения при навигации с клавиатуры
+  @function
+  @param {object} evt - объект event
+*/
+var imageHandlerKeydown = function (evt) {
+  var target = evt.target;
+
+  if (evt.code === 'Enter') {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.childNodes[1].getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.childNodes[1].id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.childNodes[1].id - 1].comments.length;
+
+    insertComments(target.childNodes[1].id - 1);
+  }
+
+  if (evt.code === 'Escape') {
+    bigPicture.classList.add('hidden');
+  }
+};
+
+/**
+  *отвечает за открытие окна наложения фильтра
+  @function
+*/
+var imageEditorHandler = function () {
+  changePhoto.classList.remove('hidden');
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.code === 'Escape') {
+      changePhoto.classList.add('hidden');
+    }
+  });
+};
+
+/**
+  *отвечает за закрытие окна наложения фильтра по клику на кнопку закрытия
+  @function
+*/
+var closeImageEditor = function () {
+  changePhoto.classList.add('hidden');
+};
+
+/**
+  *отвечает за закрытие окна наложения фильтра по клику на оверлей
+  @function
+  @param {object} evt - объект event
+*/
+var closeImageEditorOverlay = function (evt) {
+  if (evt.target.className === 'img-upload__overlay' || evt.target.className === 'img-upload__cancel') {
+    changePhoto.classList.add('hidden');
+  }
+};
 
 var photoList = generateObjectsArray(OBJECTS_QUANTITY);
 
@@ -137,19 +276,34 @@ var picturesContainer = document.querySelector('.pictures');
 
 insertPhotoMiniatures(picturesContainer);
 
-var bigPicture = document.querySelector('.big-picture');
-bigPicture.classList.remove('hidden');
-
-bigPicture.querySelector('.big-picture__img img').src = photoList[0].url;
-bigPicture.querySelector('.likes-count').textContent = photoList[0].likes;
-bigPicture.querySelector('.comments-count').textContent = photoList[0].comments.length;
-
 var currentCommentsList = bigPicture.querySelector('.social__comments');
 var commentTemplate = document.querySelector('#comment-template').content.querySelector('.social__comment');
 
-insertComments(currentCommentsList);
-
-bigPicture.querySelector('.social__caption').textContent = photoList[0].description;
-
+bigPicture.querySelector('.social__caption').textContent = photoList[getRandom(0, photoList.length - 1)].description;
 bigPicture.querySelector('.social__comment-count').classList.add('visually-hidden');
 bigPicture.querySelector('.comments-loader').classList.add('visually-hidden');
+
+var photoLoadingBtn = document.querySelector('#upload-file');
+var changePhoto = document.querySelector('.img-upload__overlay');
+
+photoLoadingBtn.addEventListener('change', imageEditorHandler);
+
+var changePhotoClose = document.querySelector('.img-upload__cancel.cancel');
+
+var photoPreview = document.querySelector('.img-upload__preview img');
+var effectsFieldset = document.querySelector('.img-upload__effects');
+
+effectsFieldset.addEventListener('click', changeFilter);
+
+changePhotoClose.addEventListener('click', closeImageEditor);
+changePhoto.addEventListener('click', closeImageEditorOverlay);
+
+var imagesContainer = document.querySelector('.pictures');
+imagesContainer.addEventListener('click', openImageClick);
+
+var bigPictureCancel = document.querySelector('.big-picture__cancel');
+
+bigPictureCancel.addEventListener('click', closeImageClick);
+bigPicture.addEventListener('click', closeImageOverlayClick);
+
+imagesContainer.addEventListener('keydown', imageHandlerKeydown);
