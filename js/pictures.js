@@ -2,8 +2,6 @@
 
 var OBJECTS_QUANTITY = 25;
 var INITIAL_FILTER_VALUE = 100;
-var uploadSection = document.querySelector('.img-upload');
-var bigPicture = document.querySelector('.big-picture');
 
 var comments = [
   'Всё отлично!',
@@ -137,6 +135,9 @@ function insertComments(ordinal) {
   }
 }
 
+var uploadSection = document.querySelector('.img-upload');
+var bigPicture = document.querySelector('.big-picture');
+
 /**
   *отвечает за смену фильтров для загруженного изображения
   @function
@@ -242,12 +243,6 @@ var imageHandlerKeydown = function (evt) {
 */
 var imageEditorHandler = function () {
   changePhoto.classList.remove('hidden');
-
-  document.addEventListener('keydown', function (evt) {
-    if (evt.code === 'Escape') {
-      changePhoto.classList.add('hidden');
-    }
-  });
 };
 
 /**
@@ -259,6 +254,17 @@ var closeImageEditor = function () {
 };
 
 /**
+  *отвечает за закрытие окна фильтров при навигации с клавиатуры
+  @function
+  @param {object} evt - объект event
+*/
+var closeEscImageEditor = function (evt) {
+  if (evt.code === 'Escape') {
+    changePhoto.classList.add('hidden');
+  }
+};
+
+/**
   *отвечает за закрытие окна наложения фильтра по клику на оверлей
   @function
   @param {object} evt - объект event
@@ -267,6 +273,52 @@ var closeImageEditorOverlay = function (evt) {
   if (evt.target.className === 'img-upload__overlay' || evt.target.className === 'img-upload__cancel') {
     changePhoto.classList.add('hidden');
   }
+};
+
+/**
+  *производит валидацию формы отправки изображения
+  @function
+*/
+var hashtagInputValidation = function () {
+  var hashtagsList = hashtagInput.value.split(' ');
+
+  if (hashtagsList.length > 5) {
+    submitBtn.setCustomValidity('Нельзя указать больше пяти хэш-тегов');
+  }
+
+  for (var i = 0; i < hashtagsList.length; i++) {
+    if (hashtagsList[i][0] !== '#') {
+      submitBtn.setCustomValidity('Хэш-тег начинается с символа #');
+    } else if (hashtagsList[i].length === 1) {
+      submitBtn.setCustomValidity('Хеш-тег не может состоять только из одной решётки');
+    } else if (hashtagsList[i].length > 20) {
+      submitBtn.setCustomValidity('Максимальная длина одного хэш-тега 20 символов, включая решётку');
+    } else {
+      submitBtn.setCustomValidity('');
+    }
+
+    for (var j = 1; j < hashtagsList.length; j++) {
+      if (hashtagsList[i].toLowerCase() === hashtagsList[j].toLowerCase()) {
+        submitBtn.setCustomValidity('Один и тот же хэш-тег не может быть использован дважды');
+      }
+    }
+  }
+};
+
+/**
+  *отменяет закрытие окна фильтров по нажатию esc при фокусе на инпуте
+  @function
+*/
+var escOff = function () {
+  document.removeEventListener('keydown', closeEscImageEditor);
+};
+
+/**
+  *возвращает закрытие окна фильтров по нажатию esc при окончании фокуса на инпуте
+  @function
+*/
+var escOn = function () {
+  document.addEventListener('keydown', closeEscImageEditor);
 };
 
 var photoList = generateObjectsArray(OBJECTS_QUANTITY);
@@ -297,6 +349,7 @@ effectsFieldset.addEventListener('click', changeFilter);
 
 changePhotoClose.addEventListener('click', closeImageEditor);
 changePhoto.addEventListener('click', closeImageEditorOverlay);
+document.addEventListener('keydown', closeEscImageEditor);
 
 var imagesContainer = document.querySelector('.pictures');
 imagesContainer.addEventListener('click', openImageClick);
@@ -307,3 +360,14 @@ bigPictureCancel.addEventListener('click', closeImageClick);
 bigPicture.addEventListener('click', closeImageOverlayClick);
 
 imagesContainer.addEventListener('keydown', imageHandlerKeydown);
+
+var hashtagInput = uploadSection.querySelector('.text__hashtags');
+var submitBtn = uploadSection.querySelector('.img-upload__submit');
+submitBtn.addEventListener('click', hashtagInputValidation);
+
+hashtagInput.addEventListener('focus', escOff);
+hashtagInput.addEventListener('focusout', escOn);
+
+var commentTextArea = uploadSection.querySelector('.text__description');
+commentTextArea.addEventListener('focus', escOff);
+commentTextArea.addEventListener('focusout', escOn);
