@@ -275,17 +275,51 @@ var closeImageEditorOverlay = function (evt) {
   }
 };
 
+function uniqueTag(array) {
+  var obj = {};
+
+  for (var i = 0; i < array.length; i++) {
+    var tag = array[i];
+    obj[tag] = true;
+  }
+
+  return Object.keys(obj);
+}
+
 /**
   *производит валидацию формы отправки изображения
   @function
 */
 var hashtagInputValidation = function () {
-  var hashtagsList = hashtagInput.value.split(' ');
+  var hashtagsList = hashtagInput.value.toLowerCase().split(' ');
+
+  if ((hashtagsList.length === 1) && (hashtagsList[0].lastIndexOf('#') !== 0)) {
+    submitBtn.setCustomValidity('Хэш-теги пишутся через пробел');
+  }
 
   if (hashtagsList.length > 5) {
     submitBtn.setCustomValidity('Нельзя указать больше пяти хэш-тегов');
   }
 
+  hashtagsList.forEach(function (value, index) {
+    if (hashtagsList[index][0] !== '#') {
+      submitBtn.setCustomValidity('Хэш-тег начинается с символа #');
+    } else if (hashtagsList[index].length === 1) {
+      submitBtn.setCustomValidity('Хеш-тег не может состоять только из одной решётки');
+    } else if (hashtagsList[index].length > 20) {
+      submitBtn.setCustomValidity('Максимальная длина одного хэш-тега 20 символов, включая решётку');
+    } else {
+      submitBtn.setCustomValidity('');
+    }
+  });
+
+  var uniqueElements = uniqueTag(hashtagsList);
+  if (uniqueElements.length !== hashtagsList.length) {
+    submitBtn.setCustomValidity('Хэш-теги не могут повторяться');
+  }
+};
+
+/*
   for (var i = 0; i < hashtagsList.length; i++) {
     if (hashtagsList[i][0] !== '#') {
       submitBtn.setCustomValidity('Хэш-тег начинается с символа #');
@@ -303,7 +337,7 @@ var hashtagInputValidation = function () {
       }
     }
   }
-};
+};*/
 
 /**
   *отменяет закрытие окна фильтров по нажатию esc при фокусе на инпуте
