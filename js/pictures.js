@@ -387,3 +387,42 @@ hashtagInput.addEventListener('focusout', escOn);
 var commentTextArea = uploadSection.querySelector('.text__description');
 commentTextArea.addEventListener('focus', escOff);
 commentTextArea.addEventListener('focusout', escOn);
+
+var effectLine = document.querySelector('.effect-level__line');
+var effectPin = effectLine.querySelector('.effect-level__pin');
+var effectDepth = effectLine.querySelector('.effect-level__depth');
+var effectLevel = uploadSection.querySelector('.effect-level__value').value;
+
+var w = effectPin.offsetWidth;
+console.dir(effectLine);
+
+effectPin.addEventListener('mousedown', function (evt) {
+  var intitalCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var mouseMoving = function (moveEvt) {
+    var coordsShifting = {
+      x: intitalCoords.x - moveEvt.clientX,
+      y: intitalCoords.y
+    };
+
+    intitalCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    effectPin.style.left = (effectPin.offsetLeft - coordsShifting.x) + 'px';
+  };
+
+  var mouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', mouseMoving);
+    document.removeEventListener('mouseup', mouseUp);
+  };
+
+  document.addEventListener('mousemove', mouseMoving);
+  document.addEventListener('mouseup', mouseUp);
+});
