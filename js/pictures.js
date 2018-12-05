@@ -393,16 +393,25 @@ var effectPin = effectLine.querySelector('.effect-level__pin');
 var effectDepth = effectLine.querySelector('.effect-level__depth');
 var effectLevel = uploadSection.querySelector('.effect-level__value').value;
 
-var w = effectPin.offsetWidth;
-console.dir(effectLine);
-
 effectPin.addEventListener('mousedown', function (evt) {
+  var effectLineWidth = evt.target.parentNode.offsetWidth;
+  var effectLineMinX = evt.target.parentNode.offsetLeft;
+  var effectLineMaxX = evt.target.parentNode.offsetLeft + effectLineWidth;
+  var pinCenter = evt.target.offsetWidth / 2;
+
+  console.log('полоса ' + evt.target.parentNode.offsetLeft);
+  console.log(evt.target.offsetLeft + pinCenter);
+
   var intitalCoords = {
     x: evt.clientX,
     y: evt.clientY
   };
 
   var mouseMoving = function (moveEvt) {
+    effectPin.ondragstart = function () {
+      return false;
+    };
+
     var coordsShifting = {
       x: intitalCoords.x - moveEvt.clientX,
       y: intitalCoords.y
@@ -413,7 +422,17 @@ effectPin.addEventListener('mousedown', function (evt) {
       y: moveEvt.clientY
     };
 
+    if (effectPin.offsetLeft === 0) {
+      effectPin.style.left = 0;
+    }
+
+    if (effectPin.offsetLeft === 453) {
+      effectPin.style.left = 100 + '%';
+    }
+
     effectPin.style.left = (effectPin.offsetLeft - coordsShifting.x) + 'px';
+    effectDepth.style.width = (effectPin.offsetLeft) / effectLineWidth * 100 + '%';
+    effectLevel = effectDepth.style.width;
   };
 
   var mouseUp = function (upEvt) {
