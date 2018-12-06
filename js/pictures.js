@@ -152,30 +152,39 @@ var changeFilter = function (evt) {
     switch (currentFilter) {
       case 'effect-none':
         photoPreview.removeAttribute('class');
+        document.querySelector('.img-upload__effect-level').classList.add('hidden');
         break;
       case 'effect-chrome':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--chrome');
+        document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-sepia':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--sepia');
+        document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-marvin':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--marvin');
+        document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-phobos':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--phobos');
+        document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-heat':
         photoPreview.removeAttribute('class');
         photoPreview.classList.add('effects__preview--heat');
+        document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
     }
 
     uploadSection.querySelector('.effect-level__value').setAttribute('value', INITIAL_FILTER_VALUE);
+
+    document.querySelector('.effect-level__pin').style.left = INITIAL_FILTER_VALUE + '%';
+    document.querySelector('.effect-level__depth').style.width = INITIAL_FILTER_VALUE + '%';
   }
 };
 
@@ -278,14 +287,14 @@ var closeImageEditorOverlay = function (evt) {
 };
 
 function uniqueTag(array) {
-  var obj = {};
+  var uniqueItems = [];
+  array.forEach(function () {
+    uniqueItems = array.filter(function (value, index) {
+      return array.indexOf(value, index + 1) === -1;
+    });
+  });
 
-  for (var i = 0; i < array.length; i++) {
-    var tag = array[i];
-    obj[tag] = true;
-  }
-
-  return Object.keys(obj);
+  return uniqueItems;
 }
 
 /**
@@ -335,6 +344,76 @@ var escOff = function () {
 */
 var escOn = function () {
   document.addEventListener('keydown', closeEscImageEditor);
+};
+
+/**
+  *осуществляет работу с фильтрами при помощи мыши
+  @function
+  @param {object} evt - объект события
+*/
+var dragAndDrop = function (evt) {
+  var effectLineWidth = evt.target.parentNode.offsetWidth;
+
+  var intitalCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var mouseMoving = function (moveEvt) {
+    effectPin.ondragstart = function () {
+      return false;
+    };
+
+    var coordsShifting = {
+      x: intitalCoords.x - moveEvt.clientX,
+      y: intitalCoords.y
+    };
+
+    intitalCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    if (effectPin.offsetLeft <= 0) {
+      effectPin.style.left = 0;
+    }
+
+    if (effectPin.offsetLeft >= effectLineWidth) {
+      effectPin.style.left = 100 + '%';
+    }
+
+    effectPin.style.left = (effectPin.offsetLeft - coordsShifting.x) + 'px';
+    var percentLevel = Math.round((effectPin.offsetLeft) / effectLineWidth * 100);
+    uploadSection.querySelector('.effect-level__value').value = percentLevel;
+    effectDepth.style.width = uploadSection.querySelector('.effect-level__value').value;
+
+    var chromeSepiaLevel = percentLevel / 100;
+    var blurLevel = 5 * percentLevel / 100;
+    var brightnessLevel = 3 * percentLevel / 100;
+    var currentFilter = document.querySelector('.img-upload__preview img').getAttribute('class');
+
+    if (currentFilter === 'effects__preview--chrome') {
+      document.querySelector('.img-upload__preview img').setAttribute('style', 'filter: grayscale(' + chromeSepiaLevel + ');');
+    } else if (currentFilter === 'effects__preview--sepia') {
+      document.querySelector('.img-upload__preview img').setAttribute('style', 'filter: sepia(' + chromeSepiaLevel + ');');
+    } else if (currentFilter === 'effects__preview--marvin') {
+      document.querySelector('.img-upload__preview img').setAttribute('style', 'filter: invert(' + percentLevel + '%);');
+    } else if (currentFilter === 'effects__preview--phobos') {
+      document.querySelector('.img-upload__preview img').setAttribute('style', 'filter: blur(' + blurLevel + 'px);');
+    } else if (currentFilter === 'effects__preview--heat') {
+      document.querySelector('.img-upload__preview img').setAttribute('style', 'filter: brightness(' + brightnessLevel + ');');
+    }
+  };
+
+  var mouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', mouseMoving);
+    document.removeEventListener('mouseup', mouseUp);
+  };
+
+  document.addEventListener('mousemove', mouseMoving);
+  document.addEventListener('mouseup', mouseUp);
 };
 
 var photoList = generateObjectsArray(OBJECTS_QUANTITY);
@@ -391,57 +470,5 @@ commentTextArea.addEventListener('focusout', escOn);
 var effectLine = document.querySelector('.effect-level__line');
 var effectPin = effectLine.querySelector('.effect-level__pin');
 var effectDepth = effectLine.querySelector('.effect-level__depth');
-var effectLevel = uploadSection.querySelector('.effect-level__value').value;
 
-effectPin.addEventListener('mousedown', function (evt) {
-  var effectLineWidth = evt.target.parentNode.offsetWidth;
-  var effectLineMinX = evt.target.parentNode.offsetLeft;
-  var effectLineMaxX = evt.target.parentNode.offsetLeft + effectLineWidth;
-  var pinCenter = evt.target.offsetWidth / 2;
-
-  console.log('полоса ' + evt.target.parentNode.offsetLeft);
-  console.log(evt.target.offsetLeft + pinCenter);
-
-  var intitalCoords = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
-
-  var mouseMoving = function (moveEvt) {
-    effectPin.ondragstart = function () {
-      return false;
-    };
-
-    var coordsShifting = {
-      x: intitalCoords.x - moveEvt.clientX,
-      y: intitalCoords.y
-    };
-
-    intitalCoords = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY
-    };
-
-    if (effectPin.offsetLeft === 0) {
-      effectPin.style.left = 0;
-    }
-
-    if (effectPin.offsetLeft === 453) {
-      effectPin.style.left = 100 + '%';
-    }
-
-    effectPin.style.left = (effectPin.offsetLeft - coordsShifting.x) + 'px';
-    effectDepth.style.width = (effectPin.offsetLeft) / effectLineWidth * 100 + '%';
-    effectLevel = effectDepth.style.width;
-  };
-
-  var mouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    document.removeEventListener('mousemove', mouseMoving);
-    document.removeEventListener('mouseup', mouseUp);
-  };
-
-  document.addEventListener('mousemove', mouseMoving);
-  document.addEventListener('mouseup', mouseUp);
-});
+effectPin.addEventListener('mousedown', dragAndDrop);
