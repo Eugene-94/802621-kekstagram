@@ -35,6 +35,23 @@ function getRandom(min, max) {
 }
 
 /**
+  *отбирает уникальные элементы массива
+  @function
+  @param {array} array - исходный массив
+  @return {array} uniqueElements - новый массив, содержащий только неповторяющиеся элементы
+*/
+function uniqueItems(array) {
+  var uniqueElements = [];
+  array.forEach(function () {
+    uniqueElements = array.filter(function (value, index) {
+      return array.indexOf(value, index + 1) === -1;
+    });
+  });
+
+  return uniqueElements;
+}
+
+/**
   *генерирует массив с одним или двумя комментариями
   @function
   @param {array} commentsArray - исходный массив, включающий в себя все доступные комментарии
@@ -156,26 +173,31 @@ var changeFilter = function (evt) {
         break;
       case 'effect-chrome':
         photoPreview.removeAttribute('class');
+        photoPreview.removeAttribute('style');
         photoPreview.classList.add('effects__preview--chrome');
         document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-sepia':
         photoPreview.removeAttribute('class');
+        photoPreview.removeAttribute('style');
         photoPreview.classList.add('effects__preview--sepia');
         document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-marvin':
         photoPreview.removeAttribute('class');
+        photoPreview.removeAttribute('style');
         photoPreview.classList.add('effects__preview--marvin');
         document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-phobos':
         photoPreview.removeAttribute('class');
+        photoPreview.removeAttribute('style');
         photoPreview.classList.add('effects__preview--phobos');
         document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
       case 'effect-heat':
         photoPreview.removeAttribute('class');
+        photoPreview.removeAttribute('style');
         photoPreview.classList.add('effects__preview--heat');
         document.querySelector('.img-upload__effect-level').classList.remove('hidden');
         break;
@@ -254,6 +276,7 @@ var imageHandlerKeydown = function (evt) {
 */
 var imageEditorHandler = function () {
   changePhoto.classList.remove('hidden');
+  document.querySelector('.img-upload__effect-level').classList.add('hidden');
 };
 
 /**
@@ -286,17 +309,6 @@ var closeImageEditorOverlay = function (evt) {
   }
 };
 
-function uniqueTag(array) {
-  var uniqueItems = [];
-  array.forEach(function () {
-    uniqueItems = array.filter(function (value, index) {
-      return array.indexOf(value, index + 1) === -1;
-    });
-  });
-
-  return uniqueItems;
-}
-
 /**
   *производит валидацию формы отправки изображения
   @function
@@ -324,7 +336,7 @@ var hashtagInputValidation = function () {
     }
   });
 
-  var uniqueElements = uniqueTag(hashtagsList);
+  var uniqueElements = uniqueItems(hashtagsList);
   if (uniqueElements.length !== hashtagsList.length) {
     submitBtn.setCustomValidity('Хэш-теги не могут повторяться');
   }
@@ -385,7 +397,7 @@ var dragAndDrop = function (evt) {
     effectPin.style.left = (effectPin.offsetLeft - coordsShifting.x) + 'px';
     var percentLevel = Math.round((effectPin.offsetLeft) / effectLineWidth * 100);
     uploadSection.querySelector('.effect-level__value').value = percentLevel;
-    effectDepth.style.width = uploadSection.querySelector('.effect-level__value').value;
+    effectDepth.style.width = percentLevel + '%';
 
     var chromeSepiaLevel = percentLevel / 100;
     var blurLevel = 5 * percentLevel / 100;
