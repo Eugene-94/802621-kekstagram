@@ -138,6 +138,66 @@ function insertPhotoMiniatures(destinationContainer) {
 }
 
 /**
+  *отвечает за открытие полноэкранного изображения по щелчку мыши
+  @function
+  @param {object} evt - объект event
+*/
+var openImageClick = function (evt) {
+  var target = evt.target;
+
+  if (target.classList.contains('picture__img')) {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.id - 1].comments.length;
+
+    insertComments(target.id - 1);
+  }
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши
+  @function
+  @param {object} evt - объект события
+*/
+var closeImageClick = function () {
+  bigPicture.classList.add('hidden');
+};
+
+/**
+  *отвечает за закрытие полноэкранного изображения по щелчку мыши на оверлей
+  @function
+  @param {object} evt - объект события
+*/
+var closeImageOverlayClick = function (evt) {
+  if (evt.target.classList.contains('overlay')) {
+    bigPicture.classList.add('hidden');
+  }
+};
+
+/**
+  *отвечает за открытие и закрытие полноэкранного изображения при навигации с клавиатуры
+  @function
+  @param {object} evt - объект event
+*/
+var imageHandlerKeydown = function (evt) {
+  var target = evt.target;
+
+  if (evt.code === 'Enter') {
+    bigPicture.classList.remove('hidden');
+    bigPicture.querySelector('.big-picture__img img').src = target.childNodes[1].getAttribute('src');
+    bigPicture.querySelector('.likes-count').textContent = photoList[target.childNodes[1].id - 1].likes;
+    bigPicture.querySelector('.comments-count').textContent = photoList[target.childNodes[1].id - 1].comments.length;
+
+    insertComments(target.childNodes[1].id - 1);
+  }
+
+  if (evt.code === 'Escape') {
+    bigPicture.classList.add('hidden');
+  }
+};
+
+/**
   *генерирует набор комментариев для полноразмерного фото
   @function
   @param {number} ordinal - индекс массива, из которого берется информация
@@ -211,66 +271,6 @@ var changeFilter = function (evt) {
 };
 
 /**
-  *отвечает за открытие полноэкранного изображения по щелчку мыши
-  @function
-  @param {object} evt - объект event
-*/
-var openImageClick = function (evt) {
-  var target = evt.target;
-
-  if (target.classList.contains('picture__img')) {
-    bigPicture.classList.remove('hidden');
-    bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
-    bigPicture.querySelector('.likes-count').textContent = photoList[target.id - 1].likes;
-    bigPicture.querySelector('.comments-count').textContent = photoList[target.id - 1].comments.length;
-
-    insertComments(target.id - 1);
-  }
-};
-
-/**
-  *отвечает за закрытие полноэкранного изображения по щелчку мыши
-  @function
-  @param {object} evt - объект события
-*/
-var closeImageClick = function () {
-  bigPicture.classList.add('hidden');
-};
-
-/**
-  *отвечает за закрытие полноэкранного изображения по щелчку мыши на оверлей
-  @function
-  @param {object} evt - объект события
-*/
-var closeImageOverlayClick = function (evt) {
-  if (evt.target.classList.contains('overlay')) {
-    bigPicture.classList.add('hidden');
-  }
-};
-
-/**
-  *отвечает за открытие и закрытие полноэкранного изображения при навигации с клавиатуры
-  @function
-  @param {object} evt - объект event
-*/
-var imageHandlerKeydown = function (evt) {
-  var target = evt.target;
-
-  if (evt.code === 'Enter') {
-    bigPicture.classList.remove('hidden');
-    bigPicture.querySelector('.big-picture__img img').src = target.childNodes[1].getAttribute('src');
-    bigPicture.querySelector('.likes-count').textContent = photoList[target.childNodes[1].id - 1].likes;
-    bigPicture.querySelector('.comments-count').textContent = photoList[target.childNodes[1].id - 1].comments.length;
-
-    insertComments(target.childNodes[1].id - 1);
-  }
-
-  if (evt.code === 'Escape') {
-    bigPicture.classList.add('hidden');
-  }
-};
-
-/**
   *отвечает за открытие окна наложения фильтра
   @function
 */
@@ -314,9 +314,12 @@ var closeImageEditorOverlay = function (evt) {
   @function
 */
 var hashtagInputValidation = function () {
+  if (hashtagInput.value === '') {
+    return;
+  }
   var hashtagsList = hashtagInput.value.toLowerCase().split(' ');
 
-  if ((hashtagsList.length === 1) && (hashtagsList[0].lastIndexOf('#') !== 0)) {
+  if ((hashtagsList.length === 1) && (hashtagsList[0].lastIndexOf('#') !== 0) && (hashtagsList[0].lastIndexOf('#') !== -1)) {
     hashtagInput.setCustomValidity('Хэш-теги указываются через пробел');
   }
 
