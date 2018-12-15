@@ -29,6 +29,16 @@
       });
 
       return uniqueElements;
+    },
+
+    extractNum: function (string) {
+      for (var i = 0; i < string.length; i++) {
+        if (!isNaN(string[i])) {
+          var num = parseInt(string.substring(i), 10);
+          break;
+        }
+      }
+      return num;
     }
   };
 })();

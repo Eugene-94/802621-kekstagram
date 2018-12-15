@@ -8,6 +8,17 @@
   var uploadSection = document.querySelector('.img-upload');
 
   /**
+    *присваивает изображению класс, соответствующий выбранному фильтру
+    @function
+    @param {string} newClass - класс, назначаемый изображению
+  */
+  var changeFilterClass = function (newClass) {
+    photoPreview.removeAttribute('class');
+    photoPreview.removeAttribute('style');
+    photoPreview.classList.add(newClass);
+  };
+
+  /**
     *отвечает за смену фильтров для загруженного изображения
     @function
     @param {object} evt - объект event
@@ -22,33 +33,23 @@
           document.querySelector('.img-upload__effect-level').classList.add('hidden');
           break;
         case 'effect-chrome':
-          photoPreview.removeAttribute('class');
-          photoPreview.removeAttribute('style');
-          photoPreview.classList.add('effects__preview--chrome');
+          changeFilterClass('effects__preview--chrome');
           document.querySelector('.img-upload__effect-level').classList.remove('hidden');
           break;
         case 'effect-sepia':
-          photoPreview.removeAttribute('class');
-          photoPreview.removeAttribute('style');
-          photoPreview.classList.add('effects__preview--sepia');
+          changeFilterClass('effects__preview--sepia');
           document.querySelector('.img-upload__effect-level').classList.remove('hidden');
           break;
         case 'effect-marvin':
-          photoPreview.removeAttribute('class');
-          photoPreview.removeAttribute('style');
-          photoPreview.classList.add('effects__preview--marvin');
+          changeFilterClass('effects__preview--marvin');
           document.querySelector('.img-upload__effect-level').classList.remove('hidden');
           break;
         case 'effect-phobos':
-          photoPreview.removeAttribute('class');
-          photoPreview.removeAttribute('style');
-          photoPreview.classList.add('effects__preview--phobos');
+          changeFilterClass('effects__preview--phobos');
           document.querySelector('.img-upload__effect-level').classList.remove('hidden');
           break;
         case 'effect-heat':
-          photoPreview.removeAttribute('class');
-          photoPreview.removeAttribute('style');
-          photoPreview.classList.add('effects__preview--heat');
+          changeFilterClass('effects__preview--heat');
           document.querySelector('.img-upload__effect-level').classList.remove('hidden');
           break;
       }
@@ -133,22 +134,6 @@
     if (uniqueElements.length !== hashtagsList.length) {
       submitBtn.setCustomValidity('Хэш-теги не могут повторяться');
     }
-  };
-
-  /**
-    *отменяет закрытие окна фильтров по нажатию esc при фокусе на инпуте
-    @function
-  */
-  var escOff = function () {
-    document.removeEventListener('keydown', closeEscImageEditor);
-  };
-
-  /**
-    *возвращает закрытие окна фильтров по нажатию esc при окончании фокуса на инпуте
-    @function
-  */
-  var escOn = function () {
-    document.addEventListener('keydown', closeEscImageEditor);
   };
 
   /**
@@ -241,16 +226,73 @@
   var submitBtn = uploadSection.querySelector('.img-upload__submit');
 
   submitBtn.addEventListener('click', hashtagInputValidation);
-  hashtagInput.addEventListener('focus', escOff);
-  hashtagInput.addEventListener('focusout', escOn);
+  hashtagInput.addEventListener('focus', function () {
+    document.removeEventListener('keydown', closeEscImageEditor);
+  });
+  hashtagInput.addEventListener('focusout', function () {
+    document.addEventListener('keydown', closeEscImageEditor);
+  });
 
   var commentTextArea = uploadSection.querySelector('.text__description');
-  commentTextArea.addEventListener('focus', escOff);
-  commentTextArea.addEventListener('focusout', escOn);
+  commentTextArea.addEventListener('focus', function () {
+    document.removeEventListener('keydown', closeEscImageEditor);
+  });
+  commentTextArea.addEventListener('focusout', function () {
+    document.addEventListener('keydown', closeEscImageEditor);
+  });
 
   var effectLine = document.querySelector('.effect-level__line');
   var effectPin = effectLine.querySelector('.effect-level__pin');
   var effectDepth = effectLine.querySelector('.effect-level__depth');
 
   effectPin.addEventListener('mousedown', dragAndDrop);
+
+  var uploadError = function () {
+    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    var errorMessage = errorTemplate.cloneNode(true);
+    closeImageEditor();
+    document.body.insertAdjacentElement('afterbegin', errorMessage);
+
+    errorMessage.querySelector('.error__buttons').addEventListener('click', function (evt) {
+      if (evt.target.classList.contains('error__button')) {
+        document.body.removeChild(errorMessage);
+      }
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.code === 'Escape') {
+        document.body.removeChild(errorMessage);
+      }
+    });
+  };
+
+  var uploadSuccess = function () {
+    var successTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successMeassage = successTemplate.cloneNode(true);
+    closeImageEditor();
+    document.body.insertAdjacentElement('afterbegin', successMeassage);
+
+    successMeassage.querySelector('.success__button').addEventListener('click', function () {
+      document.body.removeChild(successMeassage);
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      if (evt.code === 'Escape') {
+        document.body.removeChild(successMeassage);
+      }
+    });
+
+    successMeassage.addEventListener('click', function (evt) {
+      if (evt.target.classList.contains('success')) {
+        document.body.removeChild(successMeassage);
+      }
+    });
+  };
+
+  var form = document.querySelector('.img-upload__form');
+  form.addEventListener('submit', function (evt) {
+    window.uploading(new FormData(form), uploadSuccess, uploadError);
+    form.reset();
+    evt.preventDefault();
+  });
 })();

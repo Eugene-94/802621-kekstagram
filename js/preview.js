@@ -12,10 +12,11 @@
     if (target.classList.contains('picture__img')) {
       bigPicture.classList.remove('hidden');
       bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
-      bigPicture.querySelector('.likes-count').textContent = window.photoList[target.id - 1].likes;
-      bigPicture.querySelector('.comments-count').textContent = window.photoList[target.id - 1].comments.length;
+      bigPicture.querySelector('.social__caption').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].description;
+      bigPicture.querySelector('.likes-count').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].likes;
+      bigPicture.querySelector('.comments-count').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].comments.length;
 
-      insertComments(target.id - 1);
+      insertComments(window.tools.extractNum(target.getAttribute('src')) - 1);
     }
   };
 
@@ -69,10 +70,10 @@
   function insertComments(ordinal) {
     currentCommentsList.innerHTML = '';
 
-    for (var i = 0; i < window.photoList[ordinal].comments.length; i++) {
+    for (var i = 0; i < window.serverData[ordinal].comments.length; i++) {
       var commentItem = commentTemplate.cloneNode(true);
-      commentItem.querySelector('.social__picture').src = 'img/avatar-' + window.tools.getRandom(1, 6) + '.svg';
-      commentItem.querySelector('.social__text').textContent = window.photoList[ordinal].comments[i];
+      commentItem.querySelector('.social__picture').src = window.serverData[ordinal].comments[i].avatar;
+      commentItem.querySelector('.social__text').textContent = window.serverData[ordinal].comments[i].message;
 
       currentCommentsList.appendChild(commentItem);
     }
