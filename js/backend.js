@@ -14,6 +14,7 @@
       if (xhr.status === SUCCESS_CODE) {
         onSuccess(xhr.response);
         window.serverData = xhr.response;
+        document.querySelector('.img-filters').classList.remove('img-filters--inactive');
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
