@@ -11,17 +11,28 @@
     var target = evt.target;
 
     if (target.classList.contains('picture__img')) {
+
       bigPicture.classList.remove('hidden');
       bigPicture.querySelector('.big-picture__img img').src = target.getAttribute('src');
       bigPicture.querySelector('.social__caption').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].description;
       bigPicture.querySelector('.likes-count').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].likes;
       bigPicture.querySelector('.comments-count').textContent = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1].comments.length;
 
-      insertComments(window.tools.extractNum(target.getAttribute('src')) - 1);
-      hideComments();
-    }
+      clearComments();
+      var photoItem = window.serverData[window.tools.extractNum(target.getAttribute('src')) - 1];
+      insertComments(photoItem.comments, 0);
 
-    loadCommentsBtn.addEventListener('click', showComments);
+      var multiplier = Math.ceil((photoItem.comments.length - COMMENTS_SLICE) / COMMENTS_SLICE);
+      var counter = 1;
+
+      loadCommentsBtn.addEventListener('click', function () {
+        if (counter <= multiplier) {
+          //debugger;
+          insertComments(photoItem.comments, counter * COMMENTS_SLICE);
+          counter += 1;
+        }
+      });
+    }
   };
 
   /**
@@ -31,7 +42,7 @@
   */
   var closeImageClick = function () {
     bigPicture.classList.add('hidden');
-    hideComments();
+    loadCommentsBtn.classList.remove('visually-hidden');
   };
 
   /**
@@ -42,6 +53,7 @@
   var closeImageOverlayClick = function (evt) {
     if (evt.target.classList.contains('overlay')) {
       bigPicture.classList.add('hidden');
+      loadCommentsBtn.classList.remove('visually-hidden');
     }
   };
 
@@ -67,53 +79,30 @@
     }
   };
 
-  /**
-    *генерирует набор комментариев для полноразмерного фото
-    @function
-    @param {number} ordinal - индекс массива, из которого берется информация
-  */
-  function insertComments(ordinal) {
+  function clearComments() {
     currentCommentsList.innerHTML = '';
+  }
 
-    for (var i = 0; i < window.serverData[ordinal].comments.length; i++) {
+  function insertComments(commentsList, initialComment) {
+    for (var i = initialComment; i < initialComment + COMMENTS_SLICE; i++) {
+      if (i > commentsList.length - 1) {
+        loadCommentsBtn.classList.add('visually-hidden');
+        commentsCounter(i, commentsList.length);
+        return;
+      }
       var commentItem = commentTemplate.cloneNode(true);
-      commentItem.querySelector('.social__picture').src = window.serverData[ordinal].comments[i].avatar;
-      commentItem.querySelector('.social__text').textContent = window.serverData[ordinal].comments[i].message;
+      commentItem.querySelector('.social__picture').src = commentsList[i].avatar;
+      commentItem.querySelector('.social__text').textContent = commentsList[i].message;
 
       currentCommentsList.appendChild(commentItem);
     }
+
+    commentsCounter(i, commentsList.length);
   }
 
-  var minLimit = 1;
-  var highLimit = minLimit + 1;
-  function showComments() {
-    for (var j = COMMENTS_SLICE * minLimit; j < COMMENTS_SLICE * highLimit; j++) {
-      if (j === currentCommentsList.childNodes.length) {
-        loadCommentsBtn.classList.add('visually-hidden');
-        break;
-      }
-      currentCommentsList.childNodes[j].classList.remove('visually-hidden');
-    }
-
-    minLimit += 1;
-    highLimit += 1;
-    bigPicture.querySelector('.social__comment-count').textContent = j + ' из ' + currentCommentsList.childNodes.length + ' комментариев';
-  }
-
-  function hideComments() {
-    if (currentCommentsList.childNodes.length > COMMENTS_SLICE) {
-      for (var j = COMMENTS_SLICE; j < currentCommentsList.childNodes.length; j++) {
-        currentCommentsList.childNodes[j].classList.add('visually-hidden');
-      }
-
-      bigPicture.querySelector('.social__comment-count').textContent = COMMENTS_SLICE + ' из ' + currentCommentsList.childNodes.length + ' комментариев';
-      loadCommentsBtn.classList.remove('visually-hidden');
-      minLimit = 1;
-      highLimit = minLimit + 1;
-    } else {
-      bigPicture.querySelector('.social__comment-count').textContent = currentCommentsList.childNodes.length + ' из ' + currentCommentsList.childNodes.length + ' комментариев';
-      loadCommentsBtn.classList.add('visually-hidden');
-    }
+  function commentsCounter(currentComment, commentsAmount) {
+    //debugger;
+    bigPicture.querySelector('.social__comment-count').innerHTML = currentComment + ' из <span class="comments-count">' + commentsAmount + '</span> комментариев';
   }
 
   var bigPicture = document.querySelector('.big-picture');
