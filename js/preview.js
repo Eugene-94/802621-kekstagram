@@ -27,7 +27,6 @@
 
       loadCommentsBtn.addEventListener('click', function () {
         if (counter <= multiplier) {
-          //debugger;
           insertComments(photoItem.comments, counter * COMMENTS_SLICE);
           counter += 1;
         }
@@ -90,6 +89,9 @@
         commentsCounter(i, commentsList.length);
         return;
       }
+      if (i === commentsList.length - 1) {
+        loadCommentsBtn.classList.add('visually-hidden');
+      }
       var commentItem = commentTemplate.cloneNode(true);
       commentItem.querySelector('.social__picture').src = commentsList[i].avatar;
       commentItem.querySelector('.social__text').textContent = commentsList[i].message;
@@ -101,7 +103,6 @@
   }
 
   function commentsCounter(currentComment, commentsAmount) {
-    //debugger;
     bigPicture.querySelector('.social__comment-count').innerHTML = currentComment + ' из <span class="comments-count">' + commentsAmount + '</span> комментариев';
   }
 
