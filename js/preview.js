@@ -109,6 +109,16 @@
       image.open();
       image.render(orderNumber);
       image.renderComments(orderNumber);
+
+      var counter = 1;
+      loadCommentsBtn.addEventListener('click', function () {
+        var multiplier = Math.ceil((window.serverData[orderNumber - 1].comments.length - COMMENTS_SLICE) / COMMENTS_SLICE);
+
+        if (counter <= multiplier) {
+          image.insertComments(window.serverData[orderNumber - 1].comments, counter * COMMENTS_SLICE);
+          counter += 1;
+        }
+      });
     }
 
     if (evt.code === 'Escape') {
