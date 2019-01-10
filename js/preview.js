@@ -55,6 +55,8 @@
     this.commentsCounter = function (currentComment, commentsAmount) {
       bigPicture.querySelector('.social__comment-count').innerHTML = currentComment + ' из <span class="comments-count">' + commentsAmount + '</span> комментариев';
     };
+
+    this.state = 1;
   };
 
   var bigPicture = document.querySelector('.big-picture');
@@ -64,21 +66,22 @@
 
   var imagesContainer = document.querySelector('.pictures');
   imagesContainer.addEventListener('click', function (evt) {
-    var orderNumber = window.tools.extractNum(evt.target.getAttribute('src'));
-    var image = new Image();
-    image.open();
-    image.render(orderNumber);
-    image.renderComments(orderNumber);
+    if (evt.target.classList.contains('picture__img')) {
+      var orderNumber = window.tools.extractNum(evt.target.getAttribute('src'));
+      var image = new Image();
+      image.open();
+      image.render(orderNumber);
+      image.renderComments(orderNumber);
 
-    var counter = 1;
-    loadCommentsBtn.addEventListener('click', function () {
-      var multiplier = Math.ceil((window.serverData[orderNumber - 1].comments.length - COMMENTS_SLICE) / COMMENTS_SLICE);
+      loadCommentsBtn.addEventListener('click', function () {
+        var multiplier = Math.ceil((window.serverData[orderNumber - 1].comments.length - COMMENTS_SLICE) / COMMENTS_SLICE);
 
-      if (counter <= multiplier) {
-        image.insertComments(window.serverData[orderNumber - 1].comments, counter * COMMENTS_SLICE);
-        counter += 1;
-      }
-    });
+        if (image.state <= multiplier) {
+          image.insertComments(window.serverData[orderNumber - 1].comments, image.state * COMMENTS_SLICE);
+          image.state += 1;
+        }
+      });
+    }
   });
 
   var bigPictureCancel = document.querySelector('.big-picture__cancel');
@@ -110,13 +113,12 @@
       image.render(orderNumber);
       image.renderComments(orderNumber);
 
-      var counter = 1;
       loadCommentsBtn.addEventListener('click', function () {
         var multiplier = Math.ceil((window.serverData[orderNumber - 1].comments.length - COMMENTS_SLICE) / COMMENTS_SLICE);
 
-        if (counter <= multiplier) {
-          image.insertComments(window.serverData[orderNumber - 1].comments, counter * COMMENTS_SLICE);
-          counter += 1;
+        if (image.state <= multiplier) {
+          image.insertComments(window.serverData[orderNumber - 1].comments, image.state * COMMENTS_SLICE);
+          image.state += 1;
         }
       });
     }
