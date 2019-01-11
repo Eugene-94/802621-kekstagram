@@ -112,10 +112,6 @@
     }
     var hashtagsList = hashtagInput.value.toLowerCase().split(' ');
 
-    //if ((hashtagsList.length === 1) && (hashtagsList[0].lastIndexOf('#') !== 0) && (hashtagsList[0].lastIndexOf('#') !== -1)) {
-      //hashtagInput.setCustomValidity('Хэш-теги указываются через пробел');
-    //}
-
     if (hashtagsList.length > MAX_HASHTAGS_AMOUNT) {
       hashtagInput.setCustomValidity('Нельзя указать больше пяти хэш-тегов');
     }
