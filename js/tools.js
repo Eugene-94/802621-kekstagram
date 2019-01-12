@@ -2,6 +2,8 @@
 
 (function () {
 
+  var NEW_IMAGES_AMOUNT = 10;
+
   window.tools = {
     /**
       *Возвращает целое случайное число в диапазоне [min max]
@@ -31,6 +33,12 @@
       return uniqueElements;
     },
 
+    /**
+      *извлекает порядковый номер элемента из строки с url
+      @function
+      @param {string} string - исходная строка
+      @return {number} num - извлеченное число
+    */
     extractNum: function (string) {
       for (var i = 0; i < string.length; i++) {
         if (!isNaN(string[i])) {
@@ -41,6 +49,12 @@
       return num;
     },
 
+    /**
+      *осуществляет перемешивание массива
+      @function
+      @param {array} arr - исходная строка
+      @return {array}
+    */
     shuffle: function (arr) {
       for (var i = arr.length - 1; i > 0; i -= 1) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -48,7 +62,7 @@
         arr[j] = arr[i];
         arr[i] = temp;
       }
-      return arr.slice(0, 10);
+      return arr.slice(0, NEW_IMAGES_AMOUNT);
     }
   };
 })();

@@ -6,6 +6,12 @@
   var TIMEOUT_LIMIT = 10000; // 10s
   var SUCCESS_CODE = 200;
 
+  /**
+    *производит ajax-запрос на сервер для скачивания данных
+    @function
+    @param {function} onSuccess - обрабатывает случай успешной загрузки
+    @param {function} onError - обрабатывает случай неуспешной загрузки
+  */
   window.downloading = function (onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -32,6 +38,13 @@
     xhr.send();
   };
 
+  /**
+    *производит ajax-запрос для отправки данных пользователя на сервер
+    @function
+    @param {array} data - отправляемые данные
+    @param {function} onSuccess - обрабатывает случай успешной загрузки
+    @param {function} onError - обрабатывает случай неуспешной загрузки
+  */
   window.uploading = function (data, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';

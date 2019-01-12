@@ -1,6 +1,11 @@
 'use strict';
 
 (function () {
+  /**
+    *Осуществляет рендер миниатюр и фильтры рендеринга при успешной загрузке данных с сервера
+    @function
+    @param {array} data - Массив данных, загруженных с сервера
+  */
   var successRender = function (data) {
     standartRender(data);
     var flitersForm = document.querySelector('.img-filters__form');
@@ -55,6 +60,11 @@
     });
   };
 
+  /**
+    *Отображает сообщение об ошибке при неудачной загрузке данных
+    @function
+    @param {node} errorMessage - шаблон сообщения
+  */
   var errorRender = function (errorMessage) {
     var errorTemplate = document.querySelector('#error');
     errorMessage = errorTemplate.cloneNode(true);
@@ -62,13 +72,18 @@
     document.body.insertAdjacentElement('afterbegin', errorMessage);
   };
 
-  function standartRender(dataArray) {
-    dataArray.forEach(function (value, i) {
+  /**
+    *Осуществляет рендер миниатюр в поряде расположения в массиве с сервера
+    @function
+    @param {array} pictures - Массив данных, загруженных с сервера
+  */
+  function standartRender(pictures) {
+    pictures.forEach(function (value, i) {
       var photoItem = photoTemplate.cloneNode(true);
-      photoItem.querySelector('.picture__img').src = dataArray[i].url;
+      photoItem.querySelector('.picture__img').src = pictures[i].url;
       photoItem.querySelector('.picture__img').id = i;
-      photoItem.querySelector('.picture__comments').textContent = dataArray[i].comments.length;
-      photoItem.querySelector('.picture__likes').textContent = dataArray[i].likes;
+      photoItem.querySelector('.picture__comments').textContent = pictures[i].comments.length;
+      photoItem.querySelector('.picture__likes').textContent = pictures[i].likes;
 
       picturesContainer.appendChild(photoItem);
     });
