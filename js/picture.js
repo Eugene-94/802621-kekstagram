@@ -19,26 +19,8 @@
     @param {object} evt - объект event
     */
     function toggleFiltersBtn(evt) {
-      var currentBtn = evt.target.getAttribute('id');
-      switch (currentBtn) {
-        case 'filter-popular':
-          buttonPopular.classList.add('img-filters__button--active');
-          buttonNew.classList.remove('img-filters__button--active');
-          buttonDiscussed.classList.remove('img-filters__button--active');
-          break;
-
-        case 'filter-new':
-          buttonNew.classList.add('img-filters__button--active');
-          buttonPopular.classList.remove('img-filters__button--active');
-          buttonDiscussed.classList.remove('img-filters__button--active');
-          break;
-
-        case 'filter-discussed':
-          buttonDiscussed.classList.add('img-filters__button--active');
-          buttonPopular.classList.remove('img-filters__button--active');
-          buttonNew.classList.remove('img-filters__button--active');
-          break;
-      }
+      flitersForm.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
+      evt.target.classList.add('img-filters__button--active');
     }
 
     buttonDiscussed.addEventListener('click', function (evt) {
