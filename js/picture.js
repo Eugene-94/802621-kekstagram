@@ -13,7 +13,35 @@
     var buttonNew = flitersForm.querySelector('#filter-new');
     var buttonDiscussed = flitersForm.querySelector('#filter-discussed');
 
-    buttonDiscussed.addEventListener('click', function () {
+    /**
+    *отвечает за переключение кнопок фильтров при нажатии
+    @function
+    @param {object} evt - объект event
+    */
+    function toggleFiltersBtn(evt) {
+      var currentBtn = evt.target.getAttribute('id');
+      switch (currentBtn) {
+        case 'filter-popular':
+          buttonPopular.classList.add('img-filters__button--active');
+          buttonNew.classList.remove('img-filters__button--active');
+          buttonDiscussed.classList.remove('img-filters__button--active');
+          break;
+
+        case 'filter-new':
+          buttonNew.classList.add('img-filters__button--active');
+          buttonPopular.classList.remove('img-filters__button--active');
+          buttonDiscussed.classList.remove('img-filters__button--active');
+          break;
+
+        case 'filter-discussed':
+          buttonDiscussed.classList.add('img-filters__button--active');
+          buttonPopular.classList.remove('img-filters__button--active');
+          buttonNew.classList.remove('img-filters__button--active');
+          break;
+      }
+    }
+
+    buttonDiscussed.addEventListener('click', function (evt) {
       var photosData = data.slice(0);
       var photos = picturesContainer.querySelectorAll('.picture');
       photos.forEach(function (value, index) {
@@ -25,18 +53,13 @@
       });
 
       standartRender(photosData);
-
-      buttonDiscussed.classList.add('img-filters__button--active');
-      buttonPopular.classList.remove('img-filters__button--active');
-      buttonNew.classList.remove('img-filters__button--active');
+      toggleFiltersBtn(evt);
     });
 
-    buttonNew.addEventListener('click', function () {
+    buttonNew.addEventListener('click', function (evt) {
       var photosData = data.slice(0);
       var photos = picturesContainer.querySelectorAll('.picture');
-      buttonNew.classList.add('img-filters__button--active');
-      buttonPopular.classList.remove('img-filters__button--active');
-      buttonDiscussed.classList.remove('img-filters__button--active');
+      toggleFiltersBtn(evt);
 
       photos.forEach(function (value, index) {
         picturesContainer.removeChild(photos[index]);
@@ -45,11 +68,9 @@
       standartRender(window.tools.shuffle(photosData));
     });
 
-    buttonPopular.addEventListener('click', function () {
+    buttonPopular.addEventListener('click', function (evt) {
       var photos = picturesContainer.querySelectorAll('.picture');
-      buttonPopular.classList.add('img-filters__button--active');
-      buttonNew.classList.remove('img-filters__button--active');
-      buttonDiscussed.classList.remove('img-filters__button--active');
+      toggleFiltersBtn(evt);
 
       photos.forEach(function (value, index) {
         picturesContainer.removeChild(photos[index]);
